@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Install / update hooks for field_copyright.
+ */
+
+/**
+ * 2.0 — Add photographer and creator columns to all field_copyright instances.
+ *
+ * Adds four nullable varchar columns to every existing storage table
+ * holding a `field_copyright` field. Data-preserving: no backfill, no
+ * touching of existing `title` / `uri` values.
+ */
+function field_copyright_update_10200(): string {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $storage_config_storage = $entity_type_manager->getStorage('field_storage_config');
+  $storages = $storage_config_storage->loadByProperties(['type' => 'field_copyright']);
+
+  $db_schema = \Drupal::database()->schema();
+  $added = 0;
+  $skipped = 0;
+
+  $new_columns = [
+    'photographer_title' => ['type' => 'varchar', 'length' => 255,  'not null' => FALSE],
+    'photographer_uri'   => ['type' => 'varchar', 'length' => 2048, 'not null' => FALSE],
+    'creator_title'      => ['type' => 'varchar', 'length' => 255,  'not null' => FALSE],
+    'creator_uri'        => ['type' => 'varchar', 'length' => 2048, 'not null' => FALSE],
+  ];
+
+  foreach ($storages as $storage) {
+    $entity_type_id = $storage->getTargetEntityTypeId();
+    $field_name = $storage->getName();
+
+    $definition = $entity_type_manager->getDefinition($entity_type_id);
+    $tables = [$entity_type_id . '__' . $field_name];
+    if ($definition->isRevisionable()) {
+      $tables[] = $entity_type_id . '_revision__' . $field_name;
+    }
+
+    foreach ($tables as $table) {
+      if (!$db_schema->tableExists($table)) {
+        $skipped++;
+        continue;
+      }
+      foreach ($new_columns as $suffix => $spec) {
+        $full_column = $field_name . '_' . $suffix;
+        if ($db_schema->fieldExists($table, $full_column)) {
+          continue;
+        }
+        $spec['description'] = 'field_copyright 2.0: ' . $suffix;
+        $db_schema->addField($table, $full_column, $spec);
+        $added++;
+      }
+    }
+  }
+
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+
+  return t('field_copyright 2.0: added @added column(s) across @count storage table(s); @skipped table(s) skipped (not present).', [
+    '@added'   => $added,
+    '@count'   => count($storages),
+    '@skipped' => $skipped,
+  ]);
+}

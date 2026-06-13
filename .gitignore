@@ -1,0 +1,20 @@
+# Local Claude state — Claude Code drops a settings.local.json into its
+# state dir. On case-insensitive filesystems "(.claude/)" would also match
+# the tracked docs dir ".Claude/", so be specific:
+**/settings.local.json
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Composer / npm artefacts (none expected today, but pre-emptive)
+/vendor/
+/node_modules/
+/composer.lock
+
+# Build output (none expected today)
+/dist/
+/build/

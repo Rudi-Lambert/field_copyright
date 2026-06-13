@@ -1,0 +1,74 @@
+{#
+/**
+ * @file field--field-copyright.html.twig
+ *
+ * Renders a Copyright Field value. One template, two branches:
+ *
+ * 1. Full formatter (2.0) — `item.is_full` is set, `item.pairs` is an
+ *    array of attribution pairs (holder, photographer, creator),
+ *    rendered with optional favicons + a separator between pairs.
+ *
+ * 2. Text / Link formatters (1.0) — single holder credit wrapped in an
+ *    <a>. The <a> has no href when no URL is stored so it stays inert
+ *    but is still targetable by hover CSS.
+ *
+ * Label display modes (1.0 branch only):
+ *   hidden          → no label markup at all
+ *   visually_hidden → label is rendered as the © symbol (compact)
+ *   above / inline  → full label string in a <span>
+ *
+ * Available variables:
+ *   attributes:     HTML attributes object for the wrapper <div>.
+ *   label_display:  'hidden' | 'visually_hidden' | 'above' | 'inline' | 'below'
+ *   label:          Translated field label string.
+ *   items[]:        Per-delta items. For the Full formatter each has:
+ *       .is_full          TRUE
+ *       .pairs[]          Each pair has: role, label, text, url,
+ *                         link_attributes, favicon, favicon_size
+ *       .separator        Text inserted between pairs
+ *     For the Text / Link formatters each has:
+ *       .copyright_text   Holder credit string
+ *       .copyright_url    URL or '' when absent
+ *       .link_attributes  Drupal Attribute object (rel, target, …)
+ */
+#}
+<div{{ attributes }}>
+  {% for item in items %}
+    <div class="field__item"{{ item.attributes }}>
+
+      {% if item.is_full %}
+        {# ----- Full formatter: render every populated pair. ----- #}
+        {% for pair in item.pairs %}
+          {% if not loop.first %}<span class="copyright__sep">{{ item.separator }}</span>{% endif %}
+          <span class="copyright copyright--{{ pair.role }}">
+            {% if pair.label %}<span class="copyright__label">{{ pair.label }}</span>{% endif %}
+            {% if pair.url %}
+              <a href="{{ pair.url }}"{% for k, v in pair.link_attributes %} {{ k }}="{{ v }}"{% endfor %}>
+                {% if pair.favicon %}<img class="copyright__favicon" src="{{ pair.favicon }}" alt="" width="{{ pair.favicon_size }}" height="{{ pair.favicon_size }}" loading="lazy" />{% endif %}
+                {{- pair.text -}}
+              </a>
+            {% else %}
+              {{- pair.text -}}
+            {% endif %}
+          </span>
+        {% endfor %}
+
+      {% else %}
+        {# ----- Text / Link formatter (1.0-compatible). ----- #}
+        {% if item.copyright_url %}
+          <a href="{{ item.copyright_url }}"{{ item.link_attributes }}>
+        {% else %}
+          <a>
+        {% endif %}
+          {% if label_display == 'visually_hidden' %}
+            <span class="field__label">©</span>
+          {% elseif label_display != 'hidden' %}
+            <span class="field__label">{{ label }}</span>
+          {% endif %}
+          {{- item.copyright_text -}}
+        </a>
+      {% endif %}
+
+    </div>
+  {% endfor %}
+</div>

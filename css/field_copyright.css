@@ -1,0 +1,108 @@
+/**
+ * @file field_copyright.css
+ *
+ * Styles for the Copyright Field. Two visual modes coexist:
+ *
+ * 1. Overlay mode (1.0 default behaviour): the wrapper positions
+ *    itself absolutely in the bottom-right of its parent — meant for
+ *    image overlays — with low-opacity background that becomes opaque
+ *    on hover.
+ *
+ * 2. Multi-pair layout (2.0 Full formatter): inline pair / label /
+ *    favicon styling that works whether the wrapper is overlay or
+ *    inline (e.g. under a figure caption).
+ *
+ * Nested CSS rules unrolled for broad browser / PostCSS compatibility.
+ */
+
+/* ============================================================
+ * 1. Wrapper — positioned overlay (1.0 behaviour)
+ * ============================================================ */
+.field.field--type-field-copyright {
+  position: absolute;
+  bottom: 0.125rem;
+  right: 0.25rem;
+
+  color: rgba(255, 255, 255, 0.5) !important;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6rem;
+
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    font-size 0.3s ease,
+    padding 0.3s ease;
+}
+
+.field.field--type-field-copyright .field__label {
+  display: inline;
+  font-weight: inherit;
+}
+
+.field.field--type-field-copyright .field__item {
+  display: inline-block;
+}
+
+/* ============================================================
+ * 2. Links — default low-opacity, restored cursor on hover
+ * ============================================================ */
+.field.field--type-field-copyright .field__item a,
+.field.field--type-field-copyright .field__item a:link,
+.field.field--type-field-copyright .field__item a:visited,
+.field.field--type-field-copyright .field__item a:active {
+  color: rgba(255, 255, 255, 0.5) !important;
+  text-decoration: none;
+  cursor: default;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    font-size 0.3s ease,
+    padding 0.3s ease;
+}
+
+.field.field--type-field-copyright .field__item a[href] {
+  cursor: pointer;
+}
+
+.field.field--type-field-copyright .field__item a:hover {
+  color: rgba(255, 255, 255, 1) !important;
+  text-decoration: underline;
+  background-color: rgba(0, 0, 0, 0.8);
+  font-size: 0.75rem;
+}
+
+/* ============================================================
+ * 3. Multi-pair layout (2.0 Full formatter)
+ * ============================================================ */
+.field.field--type-field-copyright .copyright {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+}
+
+.field.field--type-field-copyright .copyright__label {
+  display: inline-flex;
+  align-items: center;
+  font-weight: inherit;
+  opacity: 0.85;
+}
+
+.field.field--type-field-copyright .copyright__sep {
+  display: inline-block;
+  margin: 0 0.2em;
+  opacity: 0.6;
+}
+
+.field.field--type-field-copyright .copyright__favicon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 0.25em;
+  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Per-role hooks for theme overrides. */
+.field.field--type-field-copyright .copyright--holder       { /* © */ }
+.field.field--type-field-copyright .copyright--photographer { /* 📷 */ }
+.field.field--type-field-copyright .copyright--creator      { /* 🎨 */ }

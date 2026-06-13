@@ -1,0 +1,84 @@
+# Schema for field_copyright field type, widget, and formatter settings.
+
+field.storage_settings.field_copyright:
+  type: mapping
+  label: 'Copyright field storage settings'
+  mapping: {}
+
+field.field_settings.field_copyright:
+  type: mapping
+  label: 'Copyright field instance settings'
+  mapping:
+    enable_photographer:
+      type: boolean
+      label: 'Enable photographer / source credit'
+    enable_creator:
+      type: boolean
+      label: 'Enable creator / artist credit'
+
+field.value.field_copyright:
+  type: mapping
+  label: 'Default value'
+  mapping:
+    title:
+      type: label
+      label: 'Copyright text'
+    uri:
+      type: string
+      label: 'URL'
+    photographer_title:
+      type: label
+      label: 'Photographer / source text'
+    photographer_uri:
+      type: string
+      label: 'Photographer / source URL'
+    creator_title:
+      type: label
+      label: 'Creator / artist text'
+    creator_uri:
+      type: string
+      label: 'Creator / artist URL'
+
+field.widget.settings.field_copyright_default:
+  type: mapping
+  label: 'Copyright widget settings'
+  mapping: {}
+
+field.formatter.settings.field_copyright_text:
+  type: mapping
+  label: 'Copyright text formatter settings'
+  mapping: {}
+
+field.formatter.settings.field_copyright_link:
+  type: mapping
+  label: 'Copyright link formatter settings'
+  mapping:
+    target:
+      type: string
+      label: 'Link target'
+
+field.formatter.settings.field_copyright_full:
+  type: mapping
+  label: 'Copyright full formatter settings'
+  mapping:
+    link_target:
+      type: string
+      label: 'Link target'
+    separator:
+      type: string
+      label: 'Separator between pairs'
+    label_format:
+      type: string
+      label: 'Label format (symbol / text / none)'
+    favicon_provider:
+      type: string
+      label: 'Favicon provider'
+    favicon_size:
+      type: integer
+      label: 'Favicon size in pixels'
+    favicon_external_only:
+      type: boolean
+      label: 'Only show favicons for URLs pointing to a different site'
+    favicon_ignored_hosts:
+      type: string
+      label: 'Additional hosts treated as local (one per line)'

@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * @file
+ * Hooks and preprocessing for the Copyright Field module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Template\Attribute;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_help().
+ */
+function field_copyright_help(string $route_name, RouteMatchInterface $route_match): string {
+  if ($route_name !== 'help.page.field_copyright') {
+    return '';
+  }
+  $out  = '<h2>' . t('Copyright Field') . '</h2>';
+  $out .= '<p>' . t('Provides a Copyright field type that stores a required copyright-holder credit, an optional source URL, and (per field instance) optional photographer and creator credits with their own URLs.') . '</p>';
+  $out .= '<h3>' . t('Per-instance settings') . '</h3>';
+  $out .= '<ul>';
+  $out .= '<li>' . t('<strong>Enable photographer credit</strong> — adds a second attribution pair behind a "Add photographer" checkbox in the edit form.') . '</li>';
+  $out .= '<li>' . t('<strong>Enable creator credit</strong> — adds a third pair for the original artist (e.g. when a museum photographs an artwork).') . '</li>';
+  $out .= '</ul>';
+  $out .= '<h3>' . t('Formatters') . '</h3>';
+  $out .= '<ul>';
+  $out .= '<li>' . t('<strong>Text only</strong> — plain text, holder credit only.') . '</li>';
+  $out .= '<li>' . t('<strong>Link (if URL available)</strong> — linked holder credit; falls back to plain text without a URL.') . '</li>';
+  $out .= '<li>' . t('<strong>Full</strong> — all populated pairs, with optional favicon next to source URLs (Google or DuckDuckGo).') . '</li>';
+  $out .= '</ul>';
+  return $out;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function field_copyright_theme(): array {
+  return [
+    'field__field_copyright' => [
+      'template'  => 'field--field-copyright',
+      'base hook' => 'field',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_preprocess_field() for field--field-copyright.html.twig.
+ *
+ * Detects which formatter built each delta and exposes the right
+ * variables for the template:
+ *
+ *  - Text / Link formatters (1.0-compatible): copies copyright_text /
+ *    copyright_url / link_attributes per item.
+ *  - Full formatter (2.0): copies the structured `pairs` and
+ *    `separator` per item.
+ */
+function field_copyright_preprocess_field(array &$variables): void {
+  if ($variables['field_type'] !== 'field_copyright') {
+    return;
+  }
+
+  if (!($variables['attributes'] instanceof Attribute)) {
+    $variables['attributes'] = new Attribute(
+      is_array($variables['attributes']) ? $variables['attributes'] : []
+    );
+  }
+
+  $variables['attributes']->addClass([
+    'field',
+    'field--name-' . strtr($variables['field_name'], '_', '-'),
+    'field--type-' . strtr($variables['field_type'], '_', '-'),
+    'field--label-' . strtr($variables['label_display'], '_', '-'),
+  ]);
+
+  foreach ($variables['items'] as &$item) {
+    $el = $item['content'];
+
+    // --- Full formatter (2.0) ---
+    if (!empty($el['#field_copyright_full'])) {
+      $item['is_full']   = TRUE;
+      $item['pairs']     = $el['#pairs'] ?? [];
+      $item['separator'] = $el['#separator'] ?? ' · ';
+      continue;
+    }
+
+    // --- Link formatter (1.0) ---
+    if (isset($el['#url']) && $el['#url'] instanceof Url) {
+      $item['copyright_text']  = $el['#title'] ?? '';
+      $item['copyright_url']   = $el['#url']->toString();
+      $item['link_attributes'] = new Attribute($el['#options']['attributes'] ?? []);
+      continue;
+    }
+
+    // --- Text formatter (1.0) ---
+    $item['copyright_text']  = $el['#plain_text'] ?? $el['#title'] ?? '';
+    $item['copyright_url']   = '';
+    $item['link_attributes'] = new Attribute();
+  }
+  unset($item);
+}
